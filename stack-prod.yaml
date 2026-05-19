@@ -1,0 +1,46 @@
+networks:
+  facebook-prod:
+    driver: bridge
+
+services:
+  facebook-etl:
+    container_name: facebook-etl-prod
+    image: gdelapierre/facebook-etl:1.0.0
+    environment:
+      # Facebook Marketing API
+      - FB_ACCESS_TOKEN=${FB_ACCESS_TOKEN}
+      - FB_GRAPH_API_VERSION=${FB_GRAPH_API_VERSION:-v25.0}
+      - FB_AD_ACCOUNT_IDS=${FB_AD_ACCOUNT_IDS}
+      - FB_ATTRIBUTION_WINDOWS=${FB_ATTRIBUTION_WINDOWS:-1d_view,7d_click}
+      - FB_TIMEZONE=${FB_TIMEZONE:-Australia/Brisbane}
+      - FB_API_MAX_RETRIES=${FB_API_MAX_RETRIES:-8}
+      - FB_API_RETRY_DELAY_BASE=${FB_API_RETRY_DELAY_BASE:-2000}
+      - FB_ASYNC_POLL_INTERVAL=${FB_ASYNC_POLL_INTERVAL:-5000}
+      - FB_ASYNC_MAX_WAIT_SECONDS=${FB_ASYNC_MAX_WAIT_SECONDS:-1800}
+      # PostgreSQL
+      - PGHOST=${PGHOST}
+      - PGPORT=${PGPORT:-5000}
+      - PGDATABASE=${PGDATABASE}
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - PGSSLMODE=${PGSSLMODE:-require}
+      - PGSSL_REJECT_UNAUTHORIZED=${PGSSL_REJECT_UNAUTHORIZED:-true}
+      - PGSSLROOTCERT=${PGSSLROOTCERT}
+      # Database initialisation
+      - RUN_DB_INIT=${RUN_DB_INIT:-false}
+      - DB_ADMIN_USER=${DB_ADMIN_USER:-dbadmin}
+      - DB_ADMIN_PASSWORD=${DB_ADMIN_PASSWORD}
+      - DB_ADMIN_DB=${DB_ADMIN_DB:-postgres}
+      - DB_LOADER_PASSWORD=${DB_LOADER_PASSWORD}
+      # ETL scheduler
+      - ETL_SCHEDULE=${ETL_SCHEDULE:-0 3 * * *}
+      - BACKFILL_MONTHS=${BACKFILL_MONTHS:-12}
+      - RUN_ON_STARTUP=${RUN_ON_STARTUP:-true}
+      - ETL_PORT=3003
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - TZ=${TZ:-Australia/Brisbane}
+    volumes:
+      - /data/compose/cacerts/dlplab-root-ca.pem:/etc/ssl/dlplab-root-ca.pem:ro
+    restart: unless-stopped
+    networks:
+      - facebook-prod
