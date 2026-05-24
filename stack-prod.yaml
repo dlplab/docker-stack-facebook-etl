@@ -5,7 +5,7 @@ networks:
 services:
   facebook-etl:
     container_name: facebook-etl-prod
-    image: gdelapierre/facebook-etl:1.0.0
+    image: gdelapierre/facebook-etl:1.1.0
     environment:
       # Facebook Marketing API
       - FB_ACCESS_TOKEN=${FB_ACCESS_TOKEN}
